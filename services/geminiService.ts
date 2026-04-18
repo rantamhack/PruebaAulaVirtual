@@ -1,19 +1,13 @@
 import { Course, UserPreferences } from "../types";
 
-// --- 1. CONFIGURACIÓN DE LA CLAVE (MODO SEGURO) ---
-const getApiKey = (): string => {
-  // Leemos la clave SOLAMENTE desde la variable de entorno
-  // Usamos 'as any' por si TypeScript se queja, pero esto es estándar en Vite
-  const key = (import.meta as any).env.VITE_API_KEY;
+// --- 1. VALIDACIÓN DE LA CLAVE (PROPORCIONADA POR EL USUARIO) ---
+const getApiKey = (rawKey: string): string => {
+  const key = rawKey.trim();
 
   if (!key) {
-    console.error("❌ ERROR: No se encuentra la VITE_API_KEY. Revisa tu archivo .env");
-    throw new Error("API Key no configurada en el archivo .env");
+    throw new Error("No se ha proporcionado una API Key de Gemini.");
   }
 
-  // Chivato de seguridad (muestra solo los últimos 4 caracteres)
-  console.log("🔒 Usando API Key desde .env (termina en ...", key.slice(-4), ")");
-  
   return key;
 };
 
@@ -44,7 +38,10 @@ const courseSchema = {
                   type: "ARRAY",
                   items: {
                     type: "OBJECT",
-                    properties: { name: { type: "STRING" }, url: { type: "STRING" } },
+                    properties: {
+                      name: { type: "STRING" },
+                      url: { type: "STRING" }
+                    },
                     required: ["name", "url"]
                   }
                 }
@@ -109,15 +106,17 @@ export function generarPromptCurso(tema: string, nivel: string, tiempo: string):
   `;
 }
 
-// --- 4. FUNCIÓN PRINCIPAL (SIN LIBRERÍAS, SOLO FETCH) ---
-export async function generateCourse(prefs: UserPreferences): Promise<Course | null> {
-  const apiKey = getApiKey();
-  // USAMOS EL MODELO ESTÁNDAR "LATEST" (URL DIRECTA)
+// --- 4. FUNCIÓN PRINCIPAL (USA LA KEY DEL USUARIO) ---
+export async function generateCourse(
+  prefs: UserPreferences,
+  userApiKey: string
+): Promise<Course | null> {
+  const apiKey = getApiKey(userApiKey);
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
 
   const prompt = generarPromptCurso(prefs.topic, prefs.level, prefs.timeAvailable);
 
-  console.log("📡 Conectando directamente a Gemini Flash Latest...");
+  console.log("📡 Conectando directamente a Gemini Flash Latest con la API Key proporcionada por el usuario...");
 
   try {
     const response = await fetch(url, {
@@ -140,11 +139,12 @@ export async function generateCourse(prefs: UserPreferences): Promise<Course | n
 
     const data = await response.json();
     const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    if (!jsonText) throw new Error("JSON vacío");
+
+    if (!jsonText) {
+      throw new Error("JSON vacío");
+    }
 
     return JSON.parse(jsonText) as Course;
-
   } catch (error) {
     console.error("❌ Fallo crítico:", error);
     throw error;
