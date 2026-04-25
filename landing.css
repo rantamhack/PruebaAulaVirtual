@@ -936,6 +936,15 @@ textarea::placeholder {
   }
 }
 
+html,
+body {
+  background: transparent !important;
+}
+
+body::before {
+  display: none !important;
+}
+
 .landing-page-root {
   position: relative;
   min-height: 100vh;
@@ -944,7 +953,7 @@ textarea::placeholder {
   background:
     radial-gradient(circle at 10% 0%, var(--hero-blue), transparent 30rem),
     radial-gradient(circle at 90% 10%, var(--hero-sand), transparent 26rem),
-    var(--bg);
+    var(--bg) !important;
   line-height: 1.6;
   transition: background 220ms ease, color 220ms ease;
 }
@@ -956,7 +965,6 @@ textarea::placeholder {
   pointer-events: none;
   background-image: linear-gradient(var(--grid-line) 1px, transparent 1px);
   background-size: 100% 5rem;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), transparent 45%);
   z-index: 0;
 }
 

@@ -48,18 +48,71 @@ function mapFormat(format: FormatMode): CourseFormat {
   return CourseFormat.TEXT_ONLY;
 }
 
+const themeTokens: Record<ThemeMode, Record<string, string>> = {
+  light: {
+    '--bg': '#f7f4ee',
+    '--surface': '#fffdf8',
+    '--surface-rgb': '255, 253, 248',
+    '--surface-soft': '#edf5ef',
+    '--field': '#ffffff',
+    '--ink': '#17211d',
+    '--muted': '#5d6d66',
+    '--line': '#dce4dd',
+    '--primary': '#2d6a73',
+    '--primary-dark': '#214f56',
+    '--primary-contrast': '#ffffff',
+    '--sage': '#8ead9a',
+    '--sand': '#e8d7bd',
+    '--blue-soft': '#dcecf2',
+    '--header-bg': 'rgba(247, 244, 238, 0.78)',
+    '--subtle-line': 'rgba(220, 228, 221, 0.72)',
+    '--grid-line': 'rgba(23, 33, 29, 0.035)',
+    '--focus': 'rgba(45, 106, 115, 0.28)',
+    '--shadow': '0 24px 70px rgba(36, 56, 49, 0.12)',
+    '--hero-blue': 'rgba(220, 236, 242, 0.8)',
+    '--hero-sand': 'rgba(232, 215, 189, 0.55)',
+    '--radius': '8px'
+  },
+  dark: {
+    '--bg': '#13201d',
+    '--surface': '#1c2926',
+    '--surface-rgb': '28, 41, 38',
+    '--surface-soft': '#223330',
+    '--field': '#162320',
+    '--ink': '#edf4ef',
+    '--muted': '#becbc4',
+    '--line': '#3c4f48',
+    '--primary': '#8fc8c0',
+    '--primary-dark': '#b9ddd7',
+    '--primary-contrast': '#14211f',
+    '--sage': '#9ab8a7',
+    '--sand': '#cbb895',
+    '--blue-soft': '#23353b',
+    '--header-bg': 'rgba(19, 32, 29, 0.76)',
+    '--subtle-line': 'rgba(101, 123, 113, 0.34)',
+    '--grid-line': 'rgba(237, 244, 239, 0.035)',
+    '--focus': 'rgba(143, 200, 192, 0.34)',
+    '--shadow': '0 18px 48px rgba(5, 11, 10, 0.2)',
+    '--hero-blue': 'rgba(62, 97, 104, 0.28)',
+    '--hero-sand': 'rgba(128, 110, 79, 0.16)',
+    '--radius': '8px'
+  }
+};
+
 function applyTheme(theme: ThemeMode) {
   document.documentElement.dataset.theme = theme;
-
-  if (theme === 'dark') {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-  }
-
+  document.documentElement.classList.toggle('dark', theme === 'dark');
   localStorage.setItem('aula-theme', theme);
   localStorage.setItem('theme', theme);
+
+  const tokens = themeTokens[theme];
+  Object.entries(tokens).forEach(([key, value]) => {
+    document.documentElement.style.setProperty(key, value);
+  });
 }
+
+const readTheme = (): ThemeMode =>
+  document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
 
 const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }) => {
   const [theme, setTheme] = useState<ThemeMode>('light');
@@ -72,13 +125,12 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
   const [format, setFormat] = useState<FormatMode>('text-quiz');
 
   useEffect(() => {
-
-    const savedTheme = localStorage.getItem('aula-theme') as ThemeMode | null;
+    const storedTheme = localStorage.getItem('aula-theme') as ThemeMode | null;
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme: ThemeMode = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+    const initialTheme: ThemeMode = storedTheme || (systemPrefersDark ? 'dark' : 'light');
 
     applyTheme(initialTheme);
-    setTheme(initialTheme);
+    setTheme(readTheme());
 
     const media = window.matchMedia('(prefers-color-scheme: dark)');
     const handleSystemTheme = (event: MediaQueryListEvent) => {
@@ -86,22 +138,23 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
       if (!stored) {
         const nextTheme: ThemeMode = event.matches ? 'dark' : 'light';
         applyTheme(nextTheme);
-        setTheme(nextTheme);
+        setTheme(readTheme());
       }
     };
 
-    media.addEventListener('change', handleSystemTheme);
+  media.addEventListener('change', handleSystemTheme);
 
-    return () => {
-      media.removeEventListener('change', handleSystemTheme);
-    };
-  }, []);
+  return () => {
+    media.removeEventListener('change', handleSystemTheme);
+  };
+}, []);
 
   const toggleTheme = () => {
-    const nextTheme: ThemeMode = theme === 'dark' ? 'light' : 'dark';
+    const current = readTheme();
+    const nextTheme: ThemeMode = current === 'dark' ? 'light' : 'dark';
     applyTheme(nextTheme);
-    setTheme(nextTheme);
-  };
+    setTheme(readTheme());
+  };  
 
   const previewTitle = useMemo(() => summarizeTopic(topic), [topic]);
   const previewDuration = availability;
