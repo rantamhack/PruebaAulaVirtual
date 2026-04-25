@@ -1,4 +1,3 @@
-
 export enum CourseFormat {
   TEXT_ONLY = "Solo Texto + Ejercicios",
   VIDEO_TEXT = "Video + Texto",
@@ -22,16 +21,25 @@ export interface DownloadResource {
   url: string;
 }
 
+export interface VideoReference {
+  platform: string;
+  search_query: string;
+  rationale: string;
+  relevance_score: number;
+  confidence_score: number;
+}
+
 export interface Lesson {
   title: string;
-  duration: string; // Changed from number to string to support format like "15 min"
+  duration: string;
   video_url: string;
-  content_html: string; // Rich text content
+  video_reference?: VideoReference;
+  content_html: string;
   downloads: DownloadResource[];
 }
 
 export interface ModuleEvaluation {
-  questions: QuizQuestion[]; // Fixed 5 questions
+  questions: QuizQuestion[];
 }
 
 export interface Module {
@@ -42,7 +50,7 @@ export interface Module {
 }
 
 export interface FinalExam {
-  questions: QuizQuestion[]; // Fixed 10 questions
+  questions: QuizQuestion[];
 }
 
 export interface Course {

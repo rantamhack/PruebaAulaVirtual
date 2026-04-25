@@ -1,325 +1,48 @@
 <!doctype html>
 <html lang="es">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Aula Virtual transforma objetivos de aprendizaje en itinerarios claros con IA, según tu nivel, objetivo, tiempo disponible y formato preferido.">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Aula Virtual transforma objetivos de aprendizaje en itinerarios claros con IA, según tu nivel, objetivo, tiempo disponible y formato preferido."
+    />
     <title>Aula Virtual | Itinerarios de aprendizaje con IA</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      const savedTheme = localStorage.getItem("aula-theme");
-      const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      document.documentElement.dataset.theme = savedTheme || (systemPrefersDark ? "dark" : "light");
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              electric: {
+                50: '#eff6ff',
+                100: '#dbeafe',
+                400: '#60a5fa',
+                500: '#3b82f6',
+                600: '#2563eb',
+                800: '#1e40af',
+                900: '#172554'
+              }
+            },
+            animation: {
+              'bounce-in': 'bounceIn 0.4s ease-out'
+            },
+            keyframes: {
+              bounceIn: {
+                '0%': { opacity: '0', transform: 'scale(0.95) translateY(8px)' },
+                '60%': { opacity: '1', transform: 'scale(1.02) translateY(0)' },
+                '100%': { opacity: '1', transform: 'scale(1) translateY(0)' }
+              }
+            }
+          }
+        }
+      };
     </script>
-    <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <header class="site-header">
-      <nav class="nav" aria-label="Navegación principal">
-        <a class="brand" href="#inicio" aria-label="Aula Virtual inicio">
-          <span class="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 24 24" role="img">
-              <path d="M5.5 5.25h13a1.75 1.75 0 0 1 1.75 1.75v8.5a1.75 1.75 0 0 1-1.75 1.75h-13A1.75 1.75 0 0 1 3.75 15.5V7A1.75 1.75 0 0 1 5.5 5.25Zm1.25 3v6h10.5v-6H6.75Zm2.25 9h6l.55 1.5h-7.1L9 17.25Z"/>
-            </svg>
-          </span>
-          Aula Virtual
-        </a>
-
-        <div class="nav-links">
-          <a href="#como-funciona">Cómo funciona</a>
-          <a href="#beneficios">Beneficios</a>
-          <a href="#demo">Ejemplo</a>
-          <a href="#faq">FAQ</a>
-        </div>
-
-        <div class="nav-actions">
-          <button class="theme-toggle" type="button" aria-label="Cambiar tema" aria-pressed="false">
-            <svg class="theme-icon sun-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 5.75A6.25 6.25 0 1 0 12 18.25 6.25 6.25 0 0 0 12 5.75Zm0 1.5a4.75 4.75 0 1 1 0 9.5 4.75 4.75 0 0 1 0-9.5ZM11.25 2.5h1.5v2h-1.5v-2Zm0 17h1.5v2h-1.5v-2ZM19.5 11.25h2v1.5h-2v-1.5Zm-17 0h2v1.5h-2v-1.5Zm15.05-7.11 1.06 1.06-1.42 1.42-1.06-1.06 1.42-1.42ZM5.39 17.38l1.06 1.06-1.42 1.42-1.06-1.06 1.42-1.42Zm13.22 1.42-1.06 1.06-1.42-1.42 1.06-1.06 1.42 1.42ZM6.45 5.56 5.39 6.62 3.97 5.2l1.06-1.06 1.42 1.42Z"/>
-            </svg>
-            <svg class="theme-icon moon-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M20.05 14.16A7.48 7.48 0 0 1 9.84 3.95 8.25 8.25 0 1 0 20.05 14.16Zm-2.52 2.36A6.75 6.75 0 1 1 7.48 6.47a8.98 8.98 0 0 0 10.05 10.05Z"/>
-            </svg>
-            <span class="theme-label">Tema</span>
-          </button>
-          <a class="nav-cta" href="#crear-itinerario">Crear itinerario</a>
-        </div>
-      </nav>
-    </header>
-
-    <main id="inicio">
-      <section class="hero section-shell">
-        <div class="hero-copy">
-          <p class="eyebrow">Orientación de aprendizaje con IA</p>
-          <h1>Transforma un objetivo de aprendizaje en un itinerario claro para empezar con criterio.</h1>
-          <p class="hero-lead">
-            Aula Virtual organiza lo que quieres aprender según tu nivel, tu objetivo, el tiempo que tienes y el formato que prefieres. La app usa IA real para proponerte una primera ruta útil, editable y enfocada en avanzar.
-          </p>
-          <div class="hero-points" aria-label="Resumen del producto">
-            <article>
-              <strong>Define un objetivo</strong>
-              <p>Pasas de una idea difusa a un camino de aprendizaje ordenado.</p>
-            </article>
-            <article>
-              <strong>Recibe una propuesta ajustada</strong>
-              <p>La estructura se adapta a nivel, tiempo disponible y formato preferido.</p>
-            </article>
-            <article>
-              <strong>Conecta con conocimiento útil</strong>
-              <p>La IA ayuda a priorizar recursos y pasos, no a vender un curso cerrado.</p>
-            </article>
-          </div>
-          <div class="hero-actions" aria-label="Acciones principales">
-            <a class="button button-primary" href="#crear-itinerario">
-              Crear itinerario
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M13.5 5.25 20.25 12l-6.75 6.75-1.06-1.06 4.94-4.94H3.75v-1.5h13.63l-4.94-4.94 1.06-1.06Z"/>
-              </svg>
-            </a>
-            <a class="button button-secondary" href="#demo">Ver ejemplo</a>
-          </div>
-          <div class="trust-row" aria-label="Puntos de confianza">
-            <span>Proyecto gratuito</span>
-            <span>Itinerarios editables</span>
-            <span>IA real con tu propia API key</span>
-          </div>
-        </div>
-
-        <aside class="planner-card" id="crear-itinerario" aria-labelledby="planner-title">
-          <div class="card-header">
-            <div>
-              <p class="small-label">Generador de itinerario</p>
-              <h2 id="planner-title">Dale contexto real a tu aprendizaje</h2>
-            </div>
-            <span class="soft-badge">IA asistida</span>
-          </div>
-
-          <form class="learning-form" id="learning-form">
-            <div class="field">
-              <label for="api-key">API key</label>
-              <input id="api-key" name="api-key" type="password" autocomplete="off" placeholder="Pega tu clave para generar el itinerario" required>
-              <p class="field-note">Usa tu propia API key personal de Google AI Studio. No se comparte ni viene incluida con la app.</p>
-              <details class="inline-help">
-                <summary>¿Por qué necesito una API key?</summary>
-                <div class="inline-help-body">
-                  <p>Aula Virtual es un proyecto gratuito. No hay cobro ni beneficio para el creador por cada uso.</p>
-                  <p>La aplicación usa IA real, así que cada solicitud necesita una clave válida del propio usuario.</p>
-                  <p>La key es personal. El creador no puede proporcionar una para todo el mundo, por eso cada persona debe usar la suya.</p>
-                  <p>Puedes crear una gratis en <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noreferrer">Google AI Studio</a>. Trátala como un secreto y no la compartas.</p>
-                </div>
-              </details>
-            </div>
-
-            <div class="field">
-              <label for="topic">Qué quieres aprender</label>
-              <input id="topic" name="topic" type="text" placeholder="Ej. Automatización con Python" required>
-            </div>
-
-            <div class="field-grid">
-              <div class="field">
-                <label for="level">Nivel actual</label>
-                <select id="level" name="level">
-                  <option>Estoy empezando</option>
-                  <option>Tengo bases</option>
-                  <option>Ya tengo experiencia</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="availability">Tiempo disponible</label>
-                <select id="availability" name="availability">
-                  <option>2 horas por semana</option>
-                  <option selected>4 horas por semana</option>
-                  <option>8 horas por semana</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="objective">Objetivo</label>
-              <textarea id="objective" name="objective" rows="4" placeholder="Ej. Quiero crear pequeños scripts para ahorrar tiempo en tareas repetitivas" required></textarea>
-            </div>
-
-            <fieldset class="choice-group">
-              <legend>Formato preferido</legend>
-              <label>
-                <input type="radio" name="format" value="text-quiz" checked>
-                <span>Texto + cuestionario</span>
-              </label>
-              <label>
-                <input type="radio" name="format" value="video">
-                <span>Vídeo</span>
-              </label>
-              <label>
-                <input type="radio" name="format" value="hybrid">
-                <span>Híbrido</span>
-              </label>
-            </fieldset>
-
-            <button class="button button-primary form-submit" type="submit">
-              Proponer itinerario
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 3.75a8.25 8.25 0 1 0 8.25 8.25h-1.5A6.75 6.75 0 1 1 12 5.25v-1.5Zm4.28 1.72 1.06 1.06-5.63 5.63-2.55-2.55L8.1 10.67l3.61 3.61 6.69-6.69-2.12-2.12Z"/>
-              </svg>
-            </button>
-          </form>
-        </aside>
-      </section>
-
-      <section class="how section-shell" id="como-funciona">
-        <div class="section-heading">
-          <p class="eyebrow">Cómo funciona</p>
-          <h2>Ordena el camino antes de acumular recursos sin criterio.</h2>
-        </div>
-        <div class="steps">
-          <article>
-            <span class="step-number">01</span>
-            <h3>Define el contexto</h3>
-            <p>Indica qué quieres aprender, tu punto de partida, tu objetivo y el tiempo que puedes dedicar.</p>
-          </article>
-          <article>
-            <span class="step-number">02</span>
-            <h3>Recibe una primera propuesta</h3>
-            <p>La IA organiza una secuencia inicial de temas, recursos y comprobaciones para empezar con más claridad.</p>
-          </article>
-          <article>
-            <span class="step-number">03</span>
-            <h3>Ajusta la forma de aprender</h3>
-            <p>La propuesta se adapta a texto, vídeo o combinación, y después puedes editarla según te convenga.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="benefits section-shell" id="beneficios">
-        <div class="section-heading compact">
-          <p class="eyebrow">Beneficios</p>
-          <h2>Una brújula para aprender mejor, no otra plataforma que te encierra.</h2>
-        </div>
-        <div class="benefit-grid">
-          <article class="benefit-card">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4.5 5.25h15v1.5h-15v-1.5Zm0 4.5h10.25v1.5H4.5v-1.5Zm0 4.5h15v1.5h-15v-1.5Zm0 4.5h7.25v1.5H4.5v-1.5Z"/>
-            </svg>
-            <h3>Menos dispersión</h3>
-            <p>Convierte una búsqueda amplia en una secuencia más clara de temas, prioridades y formatos útiles.</p>
-          </article>
-          <article class="benefit-card">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 3.75a8.25 8.25 0 1 0 8.25 8.25h-1.5a6.75 6.75 0 1 1-1.98-4.77l-4.77 4.77 1.06 1.06 5.83-5.83A8.22 8.22 0 0 0 12 3.75Z"/>
-            </svg>
-            <h3>Personalización realista</h3>
-            <p>La propuesta se ajusta a tu nivel, objetivo y disponibilidad, sin prometer atajos ni resultados mágicos.</p>
-          </article>
-          <article class="benefit-card">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M6.75 4.5h10.5A2.25 2.25 0 0 1 19.5 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25H6.75a2.25 2.25 0 0 1-2.25-2.25V6.75A2.25 2.25 0 0 1 6.75 4.5Zm0 1.5a.75.75 0 0 0-.75.75v10.5c0 .41.34.75.75.75h10.5c.41 0 .75-.34.75-.75V6.75a.75.75 0 0 0-.75-.75H6.75Zm2.1 6.18 1.06-1.06 1.6 1.6 3.58-3.57 1.06 1.06-4.64 4.63-2.66-2.66Z"/>
-            </svg>
-            <h3>Comprobación de avance</h3>
-            <p>Incluye pequeñas preguntas, hitos o entregables para revisar si el aprendizaje realmente está avanzando.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="demo section-shell" id="demo">
-        <div class="demo-copy">
-          <p class="eyebrow">Ejemplo de propuesta inicial</p>
-          <h2>Lo que ves aquí es un punto de partida editable, no un curso perfecto ya cerrado.</h2>
-          <p>
-            La demo muestra el tipo de estructura que Aula Virtual puede sugerir al principio. Sirve para orientar, priorizar y empezar mejor. Después puedes cambiar pasos, sustituir recursos y ajustar el ritmo según tu caso.
-          </p>
-          <p class="demo-note">La propuesta exacta depende del objetivo, nivel, tiempo disponible y formato elegido.</p>
-          <a class="text-link" href="#crear-itinerario">Probar con mi objetivo</a>
-        </div>
-        <div class="course-preview" aria-label="Vista previa de un itinerario generado">
-          <div class="preview-top">
-            <div>
-              <p class="small-label">Borrador inicial sugerido</p>
-              <h3>Automatización con Python</h3>
-            </div>
-            <span>4 horas/semana</span>
-          </div>
-          <p class="preview-intro">Ejemplo orientativo de cómo podría quedar una primera propuesta antes de editarla.</p>
-          <div class="timeline">
-            <article>
-              <span></span>
-              <div>
-                <h4>Paso 1 · Conceptos base</h4>
-                <p>Lectura breve, ejemplos prácticos y una comprobación sencilla para validar fundamentos.</p>
-              </div>
-            </article>
-            <article>
-              <span></span>
-              <div>
-                <h4>Paso 2 · Recursos adecuados</h4>
-                <p>Selección inicial de vídeos y textos según el nivel actual y el objetivo declarado.</p>
-              </div>
-            </article>
-            <article>
-              <span></span>
-              <div>
-                <h4>Paso 3 · Aplicación guiada</h4>
-                <p>Mini proyecto o ejercicio para comprobar que el conocimiento ya se puede aplicar en algo real.</p>
-              </div>
-            </article>
-          </div>
-          <div class="preview-foot">
-            <span>Ejemplo editable</span>
-            <span>No sustituye la práctica ni el criterio personal</span>
-          </div>
-        </div>
-      </section>
-
-      <section class="faq section-shell" id="faq">
-        <div class="section-heading compact">
-          <p class="eyebrow">Confianza</p>
-          <h2>Preguntas útiles antes de generar un itinerario.</h2>
-        </div>
-        <div class="faq-list">
-          <details>
-            <summary>¿Qué hace realmente Aula Virtual?</summary>
-            <p>
-              Aula Virtual no es una academia ni una plataforma de cursos cerrada.
-              Su función es ayudarte a transformar un objetivo de aprendizaje en un itinerario más claro, con estructura, formato y puntos de comprobación para avanzar con criterio.
-            </p>
-          </details>
-          <details>
-            <summary>¿Cómo consigo la API key y por qué tengo que usar la mía?</summary>
-            <p>
-              Puedes crear una gratis en Google AI Studio.
-              Aula Virtual es un proyecto gratuito, no cobra por usarlo y no incluye una clave común del autor.
-              Como la app usa IA real, cada persona necesita su propia key personal para generar propuestas.
-              Debes tratarla como un secreto y no compartirla ni guardarla en código.
-            </p>
-          </details>
-          <details>
-            <summary>¿Aula Virtual crea cursos propios?</summary>
-            <p>
-              No. Propone una estructura personalizada para orientarte y conectar mejor con conocimiento útil en distintos formatos, pero no reemplaza por sí sola el contenido ni la práctica real.
-            </p>
-          </details>
-          <details>
-            <summary>¿Puedo cambiar la propuesta que genera?</summary>
-            <p>
-              Sí. El itinerario es un punto de partida editable, pensado para darte claridad sin quitarte control. Puedes ajustar el ritmo, el formato y los recursos según te convenga.
-            </p>
-          </details>
-          <details>
-            <summary>¿Qué formato me conviene elegir?</summary>
-            <p>
-              Texto + cuestionario funciona bien si quieres ordenar ideas y comprobar comprensión.
-              Vídeo es útil si prefieres demostraciones visuales.
-              El formato híbrido combina ambos para un aprendizaje más completo.
-            </p>
-          </details>
-        </div>
-      </section>
-    </main>
-
-    <footer class="site-footer">
-      <div class="section-shell footer-inner">
-        <p>Aula Virtual</p>
-        <span>Orientación personalizada para aprender con más claridad.</span>
-      </div>
-    </footer>
-
-    <script src="script.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
