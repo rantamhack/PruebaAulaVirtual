@@ -1,0 +1,552 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { CourseFormat, CourseLevel, UserPreferences } from '../types';
+import '../landing.css';
+
+interface Props {
+  onSubmit: (prefs: UserPreferences, apiKey: string) => void;
+  onLoadDemo: () => void;
+  isLoading: boolean;
+  error?: string | null;
+}
+
+type ThemeMode = 'light' | 'dark';
+type FormatMode = 'text-quiz' | 'video' | 'hybrid';
+
+const examples: Record<FormatMode, [string, string][]> = {
+  'text-quiz': [
+    ['Paso 1 · Lectura esencial', 'Una explicación breve con conceptos base y ejemplos aplicados al objetivo.'],
+    ['Paso 2 · Cuestionario de comprensión', 'Preguntas cortas para detectar lagunas antes de avanzar.'],
+    ['Paso 3 · Síntesis práctica', 'Un pequeño ejercicio escrito para convertir la teoría en una primera aplicación útil.']
+  ],
+  video: [
+    ['Paso 1 · Vídeo introductorio', 'Una pieza breve para construir contexto sin saturar de información.'],
+    ['Paso 2 · Demostración guiada', 'Un recurso visual centrado en el caso de uso que quieres resolver.'],
+    ['Paso 3 · Pausa de aplicación', 'Una tarea concreta para comprobar que puedes replicar lo aprendido con cierta autonomía.']
+  ],
+  hybrid: [
+    ['Paso 1 · Base conceptual', 'Texto claro para fijar ideas y preparar el terreno antes de practicar.'],
+    ['Paso 2 · Recursos combinados', 'Vídeo, lectura y preguntas para abordar el tema desde más de un ángulo.'],
+    ['Paso 3 · Proyecto integrador', 'Una actividad final para conectar el conocimiento con una necesidad real de forma progresiva.']
+  ]
+};
+
+function summarizeTopic(topic: string) {
+  const cleanTopic = topic.trim().replace(/\s+/g, ' ');
+  if (!cleanTopic) return 'Automatización con Python';
+  return cleanTopic.charAt(0).toUpperCase() + cleanTopic.slice(1, 58);
+}
+
+function mapLevel(level: string): CourseLevel {
+  if (level === 'Tengo bases') return CourseLevel.INTERMEDIATE;
+  if (level === 'Ya tengo experiencia') return CourseLevel.ADVANCED;
+  return CourseLevel.BEGINNER;
+}
+
+function mapFormat(format: FormatMode): CourseFormat {
+  if (format === 'video') return CourseFormat.VIDEO_TEXT;
+  if (format === 'hybrid') return CourseFormat.HYBRID;
+  return CourseFormat.TEXT_ONLY;
+}
+
+function applyTheme(theme: ThemeMode) {
+  document.documentElement.dataset.theme = theme;
+
+  if (theme === 'dark') {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+
+  localStorage.setItem('aula-theme', theme);
+  localStorage.setItem('theme', theme);
+}
+
+const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }) => {
+  const [theme, setTheme] = useState<ThemeMode>('light');
+
+  const [apiKey, setApiKey] = useState('');
+  const [topic, setTopic] = useState('');
+  const [level, setLevel] = useState('Estoy empezando');
+  const [availability, setAvailability] = useState('4 horas por semana');
+  const [objective, setObjective] = useState('');
+  const [format, setFormat] = useState<FormatMode>('text-quiz');
+
+  useEffect(() => {
+
+    const savedTheme = localStorage.getItem('aula-theme') as ThemeMode | null;
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme: ThemeMode = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+
+    applyTheme(initialTheme);
+    setTheme(initialTheme);
+
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemTheme = (event: MediaQueryListEvent) => {
+      const stored = localStorage.getItem('aula-theme');
+      if (!stored) {
+        const nextTheme: ThemeMode = event.matches ? 'dark' : 'light';
+        applyTheme(nextTheme);
+        setTheme(nextTheme);
+      }
+    };
+
+    media.addEventListener('change', handleSystemTheme);
+
+    return () => {
+      media.removeEventListener('change', handleSystemTheme);
+    };
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme: ThemeMode = theme === 'dark' ? 'light' : 'dark';
+    applyTheme(nextTheme);
+    setTheme(nextTheme);
+  };
+
+  const previewTitle = useMemo(() => summarizeTopic(topic), [topic]);
+  const previewDuration = availability;
+  const modules = examples[format];
+
+  const previewIntro = useMemo(() => {
+    return `Ejemplo orientativo de una primera propuesta para alguien que ${level.toLowerCase()} y quiere avanzar con un formato ${
+      format === 'video'
+        ? 'visual'
+        : format === 'hybrid'
+          ? 'mixto'
+          : 'centrado en texto y comprobación'
+    }.`;
+  }, [level, format]);
+
+  const previewBadgeTwo = useMemo(() => {
+    if (format === 'hybrid') return 'Combina explicación, recursos y práctica';
+    if (format === 'video') return 'Pensado para aprender con demostraciones';
+    return 'Pensado para ordenar ideas y comprobar comprensión';
+  }, [format]);
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    const prefs: UserPreferences = {
+      topic: topic.trim(),
+      level: mapLevel(level),
+      profile: '',
+      objective: objective.trim(),
+      timeAvailable: availability,
+      format: mapFormat(format)
+    };
+
+    onSubmit(prefs, apiKey);
+  };
+
+  return (
+    <div className="landing-page-root">
+      <header className="site-header">
+        <nav className="nav" aria-label="Navegación principal">
+          <a className="brand" href="#inicio" aria-label="Aula Virtual inicio">
+            <span className="brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img">
+                <path d="M5.5 5.25h13a1.75 1.75 0 0 1 1.75 1.75v8.5a1.75 1.75 0 0 1-1.75 1.75h-13A1.75 1.75 0 0 1 3.75 15.5V7A1.75 1.75 0 0 1 5.5 5.25Zm1.25 3v6h10.5v-6H6.75Zm2.25 9h6l.55 1.5h-7.1L9 17.25Z" />
+              </svg>
+            </span>
+            Aula Virtual
+          </a>
+
+          <div className="nav-links">
+            <a href="#como-funciona">Cómo funciona</a>
+            <a href="#beneficios">Beneficios</a>
+            <a href="#demo">Ejemplo</a>
+            <a href="#faq">FAQ</a>
+          </div>
+
+          <div className="nav-actions">
+            <button
+              className="theme-toggle"
+              type="button"
+              aria-label="Cambiar tema"
+              aria-pressed={theme === 'dark'}
+              onClick={toggleTheme}
+            >
+              <svg className="theme-icon sun-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 5.75A6.25 6.25 0 1 0 12 18.25 6.25 6.25 0 0 0 12 5.75Zm0 1.5a4.75 4.75 0 1 1 0 9.5 4.75 4.75 0 0 1 0-9.5ZM11.25 2.5h1.5v2h-1.5v-2Zm0 17h1.5v2h-1.5v-2ZM19.5 11.25h2v1.5h-2v-1.5Zm-17 0h2v1.5h-2v-1.5Zm15.05-7.11 1.06 1.06-1.42 1.42-1.06-1.06 1.42-1.42ZM5.39 17.38l1.06 1.06-1.42 1.42-1.06-1.06 1.42-1.42Zm13.22 1.42-1.06 1.06-1.42-1.42 1.06-1.06 1.42 1.42ZM6.45 5.56 5.39 6.62 3.97 5.2l1.06-1.06 1.42 1.42Z" />
+              </svg>
+              <svg className="theme-icon moon-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20.05 14.16A7.48 7.48 0 0 1 9.84 3.95 8.25 8.25 0 1 0 20.05 14.16Zm-2.52 2.36A6.75 6.75 0 1 1 7.48 6.47a8.98 8.98 0 0 0 10.05 10.05Z" />
+              </svg>
+              <span className="theme-label">{theme === 'dark' ? 'Oscuro' : 'Claro'}</span>
+            </button>
+
+            <a className="nav-cta" href="#crear-itinerario">
+              Crear itinerario
+            </a>
+          </div>
+        </nav>
+      </header>
+
+      <main id="inicio">
+        <section className="hero section-shell">
+          <div className="hero-copy">
+            <p className="eyebrow">Orientación de aprendizaje con IA</p>
+            <h1>Transforma un objetivo de aprendizaje en un itinerario claro para empezar con criterio.</h1>
+            <p className="hero-lead">
+              Aula Virtual organiza lo que quieres aprender según tu nivel, tu objetivo, el tiempo que tienes y el formato que prefieres. La app usa IA real para proponerte una primera ruta útil, editable y enfocada en avanzar.
+            </p>
+
+            <div className="hero-points" aria-label="Resumen del producto">
+              <article>
+                <strong>Define un objetivo</strong>
+                <p>Pasas de una idea difusa a un camino de aprendizaje ordenado.</p>
+              </article>
+              <article>
+                <strong>Recibe una propuesta ajustada</strong>
+                <p>La estructura se adapta a nivel, tiempo disponible y formato preferido.</p>
+              </article>
+              <article>
+                <strong>Conecta con conocimiento útil</strong>
+                <p>La IA ayuda a priorizar recursos y pasos, no a vender un curso cerrado.</p>
+              </article>
+            </div>
+
+            <div className="hero-actions" aria-label="Acciones principales">
+              <a className="button button-primary" href="#crear-itinerario">
+                Crear itinerario
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M13.5 5.25 20.25 12l-6.75 6.75-1.06-1.06 4.94-4.94H3.75v-1.5h13.63l-4.94-4.94 1.06-1.06Z" />
+                </svg>
+              </a>
+              <a className="button button-secondary" href="#demo">
+                Ver ejemplo
+              </a>
+            </div>
+
+            <div className="trust-row" aria-label="Puntos de confianza">
+              <span>Proyecto gratuito</span>
+              <span>Itinerarios editables</span>
+              <span>IA real con tu propia API key</span>
+            </div>
+          </div>
+
+          <aside className="planner-card" id="crear-itinerario" aria-labelledby="planner-title">
+            <div className="card-header">
+              <div>
+                <p className="small-label">Generador de itinerario</p>
+                <h2 id="planner-title">Dale contexto real a tu aprendizaje</h2>
+              </div>
+              <span className="soft-badge">IA asistida</span>
+            </div>
+
+            <form className="learning-form" id="learning-form" onSubmit={handleSubmit}>
+              <div className="field">
+                <label htmlFor="api-key">API key</label>
+                <input
+                  id="api-key"
+                  name="api-key"
+                  type="password"
+                  autoComplete="off"
+                  placeholder="Pega tu clave para generar el itinerario"
+                  required
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                />
+                <p className="field-note">
+                  Usa tu propia API key personal de Google AI Studio. No se comparte ni viene incluida con la app.
+                </p>
+
+                <details className="inline-help">
+                  <summary>¿Por qué necesito una API key?</summary>
+                  <div className="inline-help-body">
+                    <p>Aula Virtual es un proyecto gratuito. No hay cobro ni beneficio para el creador por cada uso.</p>
+                    <p>La aplicación usa IA real, así que cada solicitud necesita una clave válida del propio usuario.</p>
+                    <p>La key es personal. El creador no puede proporcionar una para todo el mundo, por eso cada persona debe usar la suya.</p>
+                    <p>
+                      Puedes crear una gratis en{' '}
+                      <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noreferrer">
+                        Google AI Studio
+                      </a>
+                      . Trátala como un secreto y no la compartas.
+                    </p>
+                  </div>
+                </details>
+              </div>
+
+              <div className="field">
+                <label htmlFor="topic">Qué quieres aprender</label>
+                <input
+                  id="topic"
+                  name="topic"
+                  type="text"
+                  placeholder="Ej. Automatización con Python"
+                  required
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                />
+              </div>
+
+              <div className="field-grid">
+                <div className="field">
+                  <label htmlFor="level">Nivel actual</label>
+                  <select id="level" name="level" value={level} onChange={(e) => setLevel(e.target.value)}>
+                    <option>Estoy empezando</option>
+                    <option>Tengo bases</option>
+                    <option>Ya tengo experiencia</option>
+                  </select>
+                </div>
+
+                <div className="field">
+                  <label htmlFor="availability">Tiempo disponible</label>
+                  <select
+                    id="availability"
+                    name="availability"
+                    value={availability}
+                    onChange={(e) => setAvailability(e.target.value)}
+                  >
+                    <option>2 horas por semana</option>
+                    <option>4 horas por semana</option>
+                    <option>8 horas por semana</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="field">
+                <label htmlFor="objective">Objetivo</label>
+                <textarea
+                  id="objective"
+                  name="objective"
+                  rows={4}
+                  placeholder="Ej. Quiero crear pequeños scripts para ahorrar tiempo en tareas repetitivas"
+                  required
+                  value={objective}
+                  onChange={(e) => setObjective(e.target.value)}
+                />
+              </div>
+
+              <fieldset className="choice-group">
+                <legend>Formato preferido</legend>
+
+                <label>
+                  <input
+                    type="radio"
+                    name="format"
+                    value="text-quiz"
+                    checked={format === 'text-quiz'}
+                    onChange={() => setFormat('text-quiz')}
+                  />
+                  <span>Texto + cuestionario</span>
+                </label>
+
+                <label>
+                  <input
+                    type="radio"
+                    name="format"
+                    value="video"
+                    checked={format === 'video'}
+                    onChange={() => setFormat('video')}
+                  />
+                  <span>Vídeo</span>
+                </label>
+
+                <label>
+                  <input
+                    type="radio"
+                    name="format"
+                    value="hybrid"
+                    checked={format === 'hybrid'}
+                    onChange={() => setFormat('hybrid')}
+                  />
+                  <span>Híbrido</span>
+                </label>
+              </fieldset>
+
+              <button className="button button-primary form-submit" type="submit" disabled={isLoading}>
+                {isLoading ? 'Generando itinerario...' : 'Proponer itinerario'}
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3.75a8.25 8.25 0 1 0 8.25 8.25h-1.5A6.75 6.75 0 1 1 12 5.25v-1.5Zm4.28 1.72 1.06 1.06-5.63 5.63-2.55-2.55L8.1 10.67l3.61 3.61 6.69-6.69-2.12-2.12Z" />
+                </svg>
+              </button>
+
+              {error && (
+                <div
+                  style={{
+                    marginTop: '10px',
+                    padding: '12px 14px',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(220, 38, 38, 0.25)',
+                    background: 'rgba(220, 38, 38, 0.08)',
+                    color: 'rgb(185, 28, 28)',
+                    fontSize: '0.9rem',
+                    fontWeight: 600
+                  }}
+                >
+                  {error}
+                </div>
+              )}
+            </form>
+          </aside>
+        </section>
+
+        <section className="how section-shell" id="como-funciona">
+          <div className="section-heading">
+            <p className="eyebrow">Cómo funciona</p>
+            <h2>Ordena el camino antes de acumular recursos sin criterio.</h2>
+          </div>
+          <div className="steps">
+            <article>
+              <span className="step-number">01</span>
+              <h3>Define el contexto</h3>
+              <p>Indica qué quieres aprender, tu punto de partida, tu objetivo y el tiempo que puedes dedicar.</p>
+            </article>
+            <article>
+              <span className="step-number">02</span>
+              <h3>Recibe una primera propuesta</h3>
+              <p>La IA organiza una secuencia inicial de temas, recursos y comprobaciones para empezar con más claridad.</p>
+            </article>
+            <article>
+              <span className="step-number">03</span>
+              <h3>Ajusta la forma de aprender</h3>
+              <p>La propuesta se adapta a texto, vídeo o combinación, y después puedes editarla según te convenga.</p>
+            </article>
+          </div>
+        </section>
+
+        <section className="benefits section-shell" id="beneficios">
+          <div className="section-heading compact">
+            <p className="eyebrow">Beneficios</p>
+            <h2>Una brújula para aprender mejor, no otra plataforma que te encierra.</h2>
+          </div>
+          <div className="benefit-grid">
+            <article className="benefit-card">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4.5 5.25h15v1.5h-15v-1.5Zm0 4.5h10.25v1.5H4.5v-1.5Zm0 4.5h15v1.5h-15v-1.5Zm0 4.5h7.25v1.5H4.5v-1.5Z" />
+              </svg>
+              <h3>Menos dispersión</h3>
+              <p>Convierte una búsqueda amplia en una secuencia más clara de temas, prioridades y formatos útiles.</p>
+            </article>
+            <article className="benefit-card">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3.75a8.25 8.25 0 1 0 8.25 8.25h-1.5a6.75 6.75 0 1 1-1.98-4.77l-4.77 4.77 1.06 1.06 5.83-5.83A8.22 8.22 0 0 0 12 3.75Z" />
+              </svg>
+              <h3>Personalización realista</h3>
+              <p>La propuesta se ajusta a tu nivel, objetivo y disponibilidad, sin prometer atajos ni resultados mágicos.</p>
+            </article>
+            <article className="benefit-card">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6.75 4.5h10.5A2.25 2.25 0 0 1 19.5 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25H6.75a2.25 2.25 0 0 1-2.25-2.25V6.75A2.25 2.25 0 0 1 6.75 4.5Zm0 1.5a.75.75 0 0 0-.75.75v10.5c0 .41.34.75.75.75h10.5c.41 0 .75-.34.75-.75V6.75a.75.75 0 0 0-.75-.75H6.75Zm2.1 6.18 1.06-1.06 1.6 1.6 3.58-3.57 1.06 1.06-4.64 4.63-2.66-2.66Z" />
+              </svg>
+              <h3>Comprobación de avance</h3>
+              <p>Incluye pequeñas preguntas, hitos o entregables para revisar si el aprendizaje realmente está avanzando.</p>
+            </article>
+          </div>
+        </section>
+
+        <section className="demo section-shell" id="demo">
+          <div className="demo-copy">
+            <p className="eyebrow">Ejemplo de propuesta inicial</p>
+            <h2>Lo que ves aquí es un punto de partida editable, no un curso perfecto ya cerrado.</h2>
+            <p>
+              La demo muestra el tipo de estructura que Aula Virtual puede sugerir al principio. Sirve para orientar, priorizar y empezar mejor. Después puedes cambiar pasos, sustituir recursos y ajustar el ritmo según tu caso.
+            </p>
+            <p className="demo-note">
+              La propuesta exacta depende del objetivo, nivel, tiempo disponible y formato elegido.
+            </p>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <a className="text-link" href="#crear-itinerario">Probar con mi objetivo</a>
+              <button className="button button-secondary" type="button" onClick={onLoadDemo}>
+                Ver demo funcional
+              </button>
+            </div>
+          </div>
+
+          <div className="course-preview" aria-label="Vista previa de un itinerario generado">
+            <div className="preview-top">
+              <div>
+                <p className="small-label">Borrador inicial sugerido</p>
+                <h3>{previewTitle}</h3>
+              </div>
+              <span>{previewDuration}</span>
+            </div>
+
+            <p className="preview-intro">{previewIntro}</p>
+
+            <div className="timeline">
+              {modules.map((item) => (
+                <article key={item[0]}>
+                  <span></span>
+                  <div>
+                    <h4>{item[0]}</h4>
+                    <p>{item[1]}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="preview-foot">
+              <span>Propuesta inicial editable</span>
+              <span>{previewBadgeTwo}</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="faq section-shell" id="faq">
+          <div className="section-heading compact">
+            <p className="eyebrow">Confianza</p>
+            <h2>Preguntas útiles antes de generar un itinerario.</h2>
+          </div>
+
+          <div className="faq-list">
+            <details>
+              <summary>¿Qué hace realmente Aula Virtual?</summary>
+              <p>
+                Aula Virtual no es una academia ni una plataforma de cursos cerrada.
+                Su función es ayudarte a transformar un objetivo de aprendizaje en un itinerario más claro,
+                con estructura, formato y puntos de comprobación para avanzar con criterio.
+              </p>
+            </details>
+
+            <details>
+              <summary>¿Cómo consigo la API key y por qué tengo que usar la mía?</summary>
+              <p>
+                Puedes crear una gratis en Google AI Studio.
+                Aula Virtual es un proyecto gratuito, no cobra por usarlo y no incluye una clave común del autor.
+                Como la app usa IA real, cada persona necesita su propia key personal para generar propuestas.
+                Debes tratarla como un secreto y no compartirla ni guardarla en código.
+              </p>
+            </details>
+
+            <details>
+              <summary>¿Aula Virtual crea cursos propios?</summary>
+              <p>
+                No. Propone una estructura personalizada para orientarte y conectar mejor con conocimiento útil
+                en distintos formatos, pero no reemplaza por sí sola el contenido ni la práctica real.
+              </p>
+            </details>
+
+            <details>
+              <summary>¿Puedo cambiar la propuesta que genera?</summary>
+              <p>
+                Sí. El itinerario es un punto de partida editable, pensado para darte claridad sin quitarte control.
+                Puedes ajustar el ritmo, el formato y los recursos según te convenga.
+              </p>
+            </details>
+
+            <details>
+              <summary>¿Qué formato me conviene elegir?</summary>
+              <p>
+                Texto + cuestionario funciona bien si quieres ordenar ideas y comprobar comprensión.
+                Vídeo es útil si prefieres demostraciones visuales.
+                El formato híbrido combina ambos para un aprendizaje más completo.
+              </p>
+            </details>
+          </div>
+        </section>
+      </main>
+
+      <footer className="site-footer">
+        <div className="section-shell footer-inner">
+          <p>Aula Virtual</p>
+          <span>Orientación personalizada para aprender con más claridad.</span>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default LandingPage;

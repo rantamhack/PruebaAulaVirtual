@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Course, UserPreferences } from './types';
 import { generateCourse } from './services/geminiService';
 import { aiStudioCourse } from './services/sampleData';
-import CourseForm from './components/CourseForm';
+import LandingPage from './components/LandingPage';
 import Classroom from './components/Classroom';
 import ThemeToggle from './components/ThemeToggle';
 import { LogOut, Clock3, Sparkles, CheckCircle2 } from 'lucide-react';
@@ -72,14 +72,12 @@ const App: React.FC = () => {
       }
 
       console.log("✅ Curso generado con éxito:", generatedCourse.title);
-      console.log("🔑 Propiedades detectadas:", Object.keys(generatedCourse));
-      console.log("📦 Contenido de modules:", generatedCourse.modules);
-
       setCourse(generatedCourse);
       setView('classroom');
     } catch (err) {
       console.error("❌ Error en App.tsx:", err);
       setError(err instanceof Error ? err.message : "Ocurrió un error inesperado al conectar con la IA.");
+      setView('home');
     } finally {
       setLoading(false);
     }
@@ -165,8 +163,6 @@ const App: React.FC = () => {
                   />
 
                   <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/10 pointer-events-none" />
-
-                  {/* Overlay para tapar visualmente la marca de agua */}
                   <div className="absolute bottom-0 right-0 w-28 h-12 md:w-36 md:h-14 bg-gradient-to-l from-gray-950 via-gray-950/95 to-transparent pointer-events-none" />
                   <div className="absolute bottom-2 right-2 md:bottom-3 md:right-3 px-2.5 py-1 rounded-full bg-gray-900/85 border border-gray-700/70 text-[10px] md:text-[11px] font-semibold text-gray-300 backdrop-blur-sm pointer-events-none">
                     Aula Virtual
@@ -237,79 +233,64 @@ const App: React.FC = () => {
     </div>
   );
 
-  return (
-    <div className="min-h-screen relative text-gray-900 dark:text-gray-100 transition-colors duration-300 font-sans">
-      {loading ? (
-        renderLoadingScreen()
-      ) : view === 'classroom' && course ? (
-        <>
-          <header
-            className="fixed top-0 left-0 w-full z-50 h-16 px-4 md:px-6 flex items-center justify-between
-                       bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800
-                       transition-all duration-300 shadow-sm"
+  if (loading) {
+    return (
+      <div className="min-h-screen relative text-gray-900 dark:text-gray-100 transition-colors duration-300 font-sans">
+        {renderLoadingScreen()}
+      </div>
+    );
+  }
+
+  if (view === 'classroom' && course) {
+    return (
+      <div className="min-h-screen relative text-gray-900 dark:text-gray-100 transition-colors duration-300 font-sans">
+        <header
+          className="fixed top-0 left-0 w-full z-50 h-16 px-4 md:px-6 flex items-center justify-between
+                     bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800
+                     transition-all duration-300 shadow-sm"
+        >
+          <button
+            type="button"
+            onClick={() => {
+              setCourse(null);
+              setView('home');
+            }}
+            className="group flex items-center gap-2 px-3 py-2 rounded-lg 
+                       text-gray-600 dark:text-gray-400 font-medium
+                       hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 
+                       transition-all duration-200"
+            aria-label="Salir del curso"
           >
-            <button
-              type="button"
-              onClick={() => {
-                setCourse(null);
-                setView('home');
-              }}
-              className="group flex items-center gap-2 px-3 py-2 rounded-lg 
-                         text-gray-600 dark:text-gray-400 font-medium
-                         hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 
-                         transition-all duration-200"
-              aria-label="Salir del curso"
-            >
-              <LogOut className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1" />
-              <span className="hidden sm:inline">Salir</span>
-            </button>
+            <LogOut className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1" />
+            <span className="hidden sm:inline">Salir</span>
+          </button>
 
-            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[40%] sm:max-w-[50%] pointer-events-none">
-              <h1 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate text-center leading-tight">
-                {course.title || "Curso generado"}
-              </h1>
-            </div>
-
-            <div className="flex items-center justify-end">
-              <ThemeToggle />
-            </div>
-          </header>
-
-          <div className="pt-16 h-screen box-border overflow-hidden bg-gray-50 dark:bg-gray-950">
-            <Classroom course={course} />
+          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-[40%] sm:max-w-[50%] pointer-events-none">
+            <h1 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate text-center leading-tight">
+              {course.title || "Curso generado"}
+            </h1>
           </div>
-        </>
-      ) : (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50 via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-950 dark:to-black relative overflow-x-hidden">
-          <div className="absolute top-6 right-6 z-50">
+
+          <div className="flex items-center justify-end">
             <ThemeToggle />
           </div>
+        </header>
 
-          <div
-            className="absolute inset-0 z-0 opacity-40 dark:opacity-20 pointer-events-none"
-            style={{ backgroundImage: 'radial-gradient(#3b82f6 0.5px, transparent 0.5px)', backgroundSize: '24px 24px' }}
-          ></div>
-
-          <div className="relative z-10 pt-20 md:pt-24 pb-12">
-            <CourseForm onSubmit={handleGenerateCourse} onLoadDemo={handleLoadDemo} isLoading={loading} />
-
-            {error && (
-              <div className="mt-6 px-4">
-                <div className="mx-auto w-full max-w-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg text-center shadow-lg p-4">
-                  <p className="font-bold flex items-center justify-center gap-2">
-                    ⚠️ ¡Ups! Algo salió mal
-                  </p>
-                  <p className="text-sm mt-1">{error}</p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <footer className="relative z-10 text-center text-xs text-gray-400 dark:text-gray-600 w-full pb-6">
-            ProfesorIA v2.0 • Powered by Google Gemini
-          </footer>
+        <div className="pt-16 h-screen box-border overflow-hidden bg-gray-50 dark:bg-gray-950">
+          <Classroom course={course} />
         </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen relative text-gray-900 dark:text-gray-100 transition-colors duration-300 font-sans">
+      <LandingPage
+        onSubmit={handleGenerateCourse}
+        onLoadDemo={handleLoadDemo}
+        isLoading={loading}
+        error={error}
+      />
     </div>
   );
 };
