@@ -118,7 +118,7 @@ const App: React.FC = () => {
               Aula Virtual
             </div>
 
-            <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+            <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white text-center max-w-5xl mx-auto leading-[1.1] text-balance">
               Generando tu curso personalizado
             </h1>
 
@@ -226,7 +226,7 @@ const App: React.FC = () => {
           </div>
 
           <p className="text-center text-[11px] md:text-xs text-gray-500 dark:text-gray-500 mt-4">
-            No cierres esta ventana mientras se genera el curso.
+            Estamos preparando tu curso. Esta ventana puede tardar un poco en completarse..
           </p>
         </div>
       </div>

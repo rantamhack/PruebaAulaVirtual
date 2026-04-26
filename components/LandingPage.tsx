@@ -42,11 +42,6 @@ function mapLevel(level: string): CourseLevel {
   return CourseLevel.BEGINNER;
 }
 
-function mapFormat(format: FormatMode): CourseFormat {
-  if (format === 'video') return CourseFormat.VIDEO_TEXT;
-  if (format === 'hybrid') return CourseFormat.HYBRID;
-  return CourseFormat.TEXT_ONLY;
-}
 
 const themeTokens: Record<ThemeMode, Record<string, string>> = {
   light: {
@@ -122,7 +117,7 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
   const [level, setLevel] = useState('Estoy empezando');
   const [availability, setAvailability] = useState('4 horas por semana');
   const [objective, setObjective] = useState('');
-  const [format, setFormat] = useState<FormatMode>('text-quiz');
+  const format: FormatMode = 'hybrid';
 
   useEffect(() => {
     const storedTheme = localStorage.getItem('aula-theme') as ThemeMode | null;
@@ -170,11 +165,6 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
     }.`;
   }, [level, format]);
 
-  const previewBadgeTwo = useMemo(() => {
-    if (format === 'hybrid') return 'Combina explicación, recursos y práctica';
-    if (format === 'video') return 'Pensado para aprender con demostraciones';
-    return 'Pensado para ordenar ideas y comprobar comprensión';
-  }, [format]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -185,7 +175,7 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
       profile: '',
       objective: objective.trim(),
       timeAvailable: availability,
-      format: mapFormat(format)
+      format: CourseFormat.HYBRID
     };
 
     onSubmit(prefs, apiKey);
@@ -215,7 +205,7 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
             <button
               className="theme-toggle"
               type="button"
-              aria-label="Cambiar tema"
+              aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
               aria-pressed={theme === 'dark'}
               onClick={toggleTheme}
             >
@@ -225,11 +215,11 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
               <svg className="theme-icon moon-icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M20.05 14.16A7.48 7.48 0 0 1 9.84 3.95 8.25 8.25 0 1 0 20.05 14.16Zm-2.52 2.36A6.75 6.75 0 1 1 7.48 6.47a8.98 8.98 0 0 0 10.05 10.05Z" />
               </svg>
-              <span className="theme-label">{theme === 'dark' ? 'Oscuro' : 'Claro'}</span>
+              <span className="theme-label">{theme === 'dark' ? 'Claro' : 'Oscuro'}</span>
             </button>
 
             <a className="nav-cta" href="#crear-itinerario">
-              Crear itinerario
+              Crear curso
             </a>
           </div>
         </nav>
@@ -239,9 +229,9 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
         <section className="hero section-shell">
           <div className="hero-copy">
             <p className="eyebrow">Orientación de aprendizaje con IA</p>
-            <h1>Transforma un objetivo de aprendizaje en un itinerario claro para empezar con criterio.</h1>
+            <h1>Transforma un objetivo de aprendizaje en un curso claro para empezar con criterio.</h1>
             <p className="hero-lead">
-              Aula Virtual organiza lo que quieres aprender según tu nivel, tu objetivo, el tiempo que tienes y el formato que prefieres. La app usa IA real para proponerte una primera ruta útil, editable y enfocada en avanzar.
+              Aula Virtual organiza lo que quieres aprender según tu nivel, tu objetivo y el tiempo que tienes. La app usa IA real para proponerte un curso claro, editable y enfocado en avanzar.
             </p>
 
             <div className="hero-points" aria-label="Resumen del producto">
@@ -251,17 +241,17 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
               </article>
               <article>
                 <strong>Recibe una propuesta ajustada</strong>
-                <p>La estructura se adapta a nivel, tiempo disponible y formato preferido.</p>
+                <p>La estructura se adapta a nivel, tiempo disponible y al objetivo que quieres alcanzar.</p>
               </article>
               <article>
                 <strong>Conecta con conocimiento útil</strong>
-                <p>La IA ayuda a priorizar recursos y pasos, no a vender un curso cerrado.</p>
+                <p>La IA te ayuda a obtener un curso útil desde el principio, no a venderte una promesa vacía.</p>
               </article>
             </div>
 
             <div className="hero-actions" aria-label="Acciones principales">
               <a className="button button-primary" href="#crear-itinerario">
-                Crear itinerario
+                Crear curso
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M13.5 5.25 20.25 12l-6.75 6.75-1.06-1.06 4.94-4.94H3.75v-1.5h13.63l-4.94-4.94 1.06-1.06Z" />
                 </svg>
@@ -273,7 +263,7 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
 
             <div className="trust-row" aria-label="Puntos de confianza">
               <span>Proyecto gratuito</span>
-              <span>Itinerarios editables</span>
+              <span>Cursos editables</span>
               <span>IA real con tu propia API key</span>
             </div>
           </div>
@@ -281,7 +271,7 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
           <aside className="planner-card" id="crear-itinerario" aria-labelledby="planner-title">
             <div className="card-header">
               <div>
-                <p className="small-label">Generador de itinerario</p>
+                <p className="small-label">Generador de curso</p>
                 <h2 id="planner-title">Dale contexto real a tu aprendizaje</h2>
               </div>
               <span className="soft-badge">IA asistida</span>
@@ -295,7 +285,7 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
                   name="api-key"
                   type="password"
                   autoComplete="off"
-                  placeholder="Pega tu clave para generar el itinerario"
+                  placeholder="Pega tu clave para generar el curso"
                   required
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
@@ -346,16 +336,14 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
 
                 <div className="field">
                   <label htmlFor="availability">Tiempo disponible</label>
-                  <select
+                  <input
                     id="availability"
                     name="availability"
+                    type="text"
+                    placeholder="Ej. 4 horas por semana"
                     value={availability}
                     onChange={(e) => setAvailability(e.target.value)}
-                  >
-                    <option>2 horas por semana</option>
-                    <option>4 horas por semana</option>
-                    <option>8 horas por semana</option>
-                  </select>
+                  />
                 </div>
               </div>
 
@@ -372,66 +360,25 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
                 />
               </div>
 
-              <fieldset className="choice-group">
-                <legend>Formato preferido</legend>
 
-                <label>
-                  <input
-                    type="radio"
-                    name="format"
-                    value="text-quiz"
-                    checked={format === 'text-quiz'}
-                    onChange={() => setFormat('text-quiz')}
-                  />
-                  <span>Texto + cuestionario</span>
-                </label>
-
-                <label>
-                  <input
-                    type="radio"
-                    name="format"
-                    value="video"
-                    checked={format === 'video'}
-                    onChange={() => setFormat('video')}
-                  />
-                  <span>Vídeo</span>
-                </label>
-
-                <label>
-                  <input
-                    type="radio"
-                    name="format"
-                    value="hybrid"
-                    checked={format === 'hybrid'}
-                    onChange={() => setFormat('hybrid')}
-                  />
-                  <span>Híbrido</span>
-                </label>
-              </fieldset>
 
               <button className="button button-primary form-submit" type="submit" disabled={isLoading}>
-                {isLoading ? 'Generando itinerario...' : 'Proponer itinerario'}
+                {isLoading ? 'Generando curso...' : 'Generar curso'}
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 3.75a8.25 8.25 0 1 0 8.25 8.25h-1.5A6.75 6.75 0 1 1 12 5.25v-1.5Zm4.28 1.72 1.06 1.06-5.63 5.63-2.55-2.55L8.1 10.67l3.61 3.61 6.69-6.69-2.12-2.12Z" />
                 </svg>
               </button>
 
+              <button className="button button-secondary form-submit" type="button" onClick={onLoadDemo} disabled={isLoading}>
+                Ver demo
+              </button>
+
               {error && (
-                <div
-                  style={{
-                    marginTop: '10px',
-                    padding: '12px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid rgba(220, 38, 38, 0.25)',
-                    background: 'rgba(220, 38, 38, 0.08)',
-                    color: 'rgb(185, 28, 28)',
-                    fontSize: '0.9rem',
-                    fontWeight: 600
-                  }}
-                >
+                <div className="form-error-banner">
                   {error}
                 </div>
               )}
+
             </form>
           </aside>
         </section>
@@ -441,21 +388,24 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
             <p className="eyebrow">Cómo funciona</p>
             <h2>Ordena el camino antes de acumular recursos sin criterio.</h2>
           </div>
+
           <div className="steps">
             <article>
               <span className="step-number">01</span>
               <h3>Define el contexto</h3>
               <p>Indica qué quieres aprender, tu punto de partida, tu objetivo y el tiempo que puedes dedicar.</p>
             </article>
+
             <article>
               <span className="step-number">02</span>
               <h3>Recibe una primera propuesta</h3>
-              <p>La IA organiza una secuencia inicial de temas, recursos y comprobaciones para empezar con más claridad.</p>
+              <p>La IA organiza un curso inicial con temas, recursos y comprobaciones para empezar con más claridad.</p>
             </article>
+
             <article>
               <span className="step-number">03</span>
               <h3>Ajusta la forma de aprender</h3>
-              <p>La propuesta se adapta a texto, vídeo o combinación, y después puedes editarla según te convenga.</p>
+              <p>El curso se adapta a tu objetivo y después puedes editarlo según te convenga.</p>
             </article>
           </div>
         </section>
@@ -478,7 +428,7 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
                 <path d="M12 3.75a8.25 8.25 0 1 0 8.25 8.25h-1.5a6.75 6.75 0 1 1-1.98-4.77l-4.77 4.77 1.06 1.06 5.83-5.83A8.22 8.22 0 0 0 12 3.75Z" />
               </svg>
               <h3>Personalización realista</h3>
-              <p>La propuesta se ajusta a tu nivel, objetivo y disponibilidad, sin prometer atajos ni resultados mágicos.</p>
+              <p>El curso se ajusta a tu nivel, objetivo y disponibilidad, sin prometer atajos ni resultados mágicos.</p>
             </article>
             <article className="benefit-card">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -492,16 +442,16 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
 
         <section className="demo section-shell" id="demo">
           <div className="demo-copy">
-            <p className="eyebrow">Ejemplo de propuesta inicial</p>
+            <p className="eyebrow">Ejemplo de curso inicial</p>
             <h2>Lo que ves aquí es un punto de partida editable, no un curso perfecto ya cerrado.</h2>
             <p>
-              La demo muestra el tipo de estructura que Aula Virtual puede sugerir al principio. Sirve para orientar, priorizar y empezar mejor. Después puedes cambiar pasos, sustituir recursos y ajustar el ritmo según tu caso.
+              La demo muestra el tipo de estructura que Aula Virtual puede generar al principio. Sirve para orientar, priorizar y empezar mejor. Después puedes cambiar pasos, sustituir recursos y ajustar el ritmo según tu caso.
             </p>
             <p className="demo-note">
-              La propuesta exacta depende del objetivo, nivel, tiempo disponible y formato elegido.
+              El curso exacto depende del objetivo, nivel, tiempo disponible y formato elegido.
             </p>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <a className="text-link" href="#crear-itinerario">Probar con mi objetivo</a>
+              <a className="text-link" href="#crear-itinerario">Generar mi curso</a>
               <button className="button button-secondary" type="button" onClick={onLoadDemo}>
                 Ver demo funcional
               </button>
@@ -511,7 +461,7 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
           <div className="course-preview" aria-label="Vista previa de un itinerario generado">
             <div className="preview-top">
               <div>
-                <p className="small-label">Borrador inicial sugerido</p>
+                <p className="small-label">Curso inicial sugerido</p>
                 <h3>{previewTitle}</h3>
               </div>
               <span>{previewDuration}</span>
@@ -532,8 +482,8 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
             </div>
 
             <div className="preview-foot">
-              <span>Propuesta inicial editable</span>
-              <span>{previewBadgeTwo}</span>
+              <span>Curso inicial editable</span>
+              <span>Combina explicación, recursos y práctica</span>
             </div>
           </div>
         </section>
@@ -549,7 +499,7 @@ const LandingPage: React.FC<Props> = ({ onSubmit, onLoadDemo, isLoading, error }
               <summary>¿Qué hace realmente Aula Virtual?</summary>
               <p>
                 Aula Virtual no es una academia ni una plataforma de cursos cerrada.
-                Su función es ayudarte a transformar un objetivo de aprendizaje en un itinerario más claro,
+                Su función es ayudarte a transformar un objetivo de aprendizaje en un curso más claro,
                 con estructura, formato y puntos de comprobación para avanzar con criterio.
               </p>
             </details>

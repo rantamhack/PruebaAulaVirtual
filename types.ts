@@ -32,10 +32,9 @@ export interface VideoReference {
 export interface Lesson {
   title: string;
   duration: string;
-  video_url: string;
-  video_reference?: VideoReference;
+  video_url?: string;
   content_html: string;
-  downloads: DownloadResource[];
+  downloads?: DownloadResource[];
 }
 
 export interface ModuleEvaluation {
@@ -46,7 +45,7 @@ export interface Module {
   title: string;
   description: string;
   lessons: Lesson[];
-  evaluation: ModuleEvaluation;
+  evaluation?: ModuleEvaluation | null;
 }
 
 export interface FinalExam {
@@ -58,7 +57,7 @@ export interface Course {
   title: string;
   description: string;
   modules: Module[];
-  final_exam: FinalExam;
+  final_exam?: FinalExam | null;
 }
 
 export interface UserPreferences {

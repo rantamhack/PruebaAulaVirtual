@@ -209,12 +209,13 @@ summary:focus-visible {
   padding: 0 12px;
 }
 
-.moon-icon,
-[data-theme="dark"] .sun-icon {
+.sun-icon,
+[data-theme="dark"] .moon-icon {
   display: none;
 }
 
-[data-theme="dark"] .moon-icon {
+.moon-icon,
+[data-theme="dark"] .sun-icon {
   display: block;
 }
 
@@ -258,6 +259,7 @@ h1 {
   font-size: clamp(2.55rem, 4.8vw, 4.4rem);
   line-height: 0.98;
   letter-spacing: -0.02em;
+  font-weight: 750;
 }
 
 .hero-lead {
@@ -265,6 +267,7 @@ h1 {
   margin-bottom: 32px;
   color: var(--muted);
   font-size: clamp(1.05rem, 2vw, 1.28rem);
+
 }
 
 .hero-actions {
@@ -971,4 +974,31 @@ body::before {
 .landing-page-root > * {
   position: relative;
   z-index: 1;
+}
+
+.form-error-banner {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  background: rgba(220, 38, 38, 0.08);
+  color: rgb(185, 28, 28);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.button:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.button:disabled:hover {
+  transform: none;
+  background: inherit;
+}
+
+.learning-form .button + .button {
+  margin-top: 10px;
 }
