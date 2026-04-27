@@ -1002,3 +1002,16 @@ body::before {
 .learning-form .button + .button {
   margin-top: 10px;
 }
+
+@media (max-width: 768px) {
+  .hero-copy h1 {
+    max-width: 14ch;
+    font-size: clamp(2.2rem, 8vw, 3.2rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-copy {
+    max-width: 100%;
+  }
+}
